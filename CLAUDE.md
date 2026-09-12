@@ -125,10 +125,16 @@ The ordering service implements DDD principles with clear bounded contexts:
 - `domain/utility/` - Domain utilities (ID generation)
 
 **Key patterns:**
-- **Aggregate Roots** enforce business invariants
+- **Aggregate Roots** enforce business invariants (`Customer` is complete; `Order` is scaffolded — draft factory + getters only, lifecycle behaviors not yet implemented)
 - **Domain Exceptions** represent business rule violations
-- **Value Objects** encapsulate domain concepts
-- Entities use **time-based UUIDs** for distributed ID generation
+- **Value Objects** encapsulate domain concepts (e.g. `Email`, `Money`, `Address`, `FullName`, typed IDs under `valueobject/id/`)
+- Validation logic in `domain/validator/FieldValidations` builds on `commons-validator`
+
+**ID generation (`domain/utility/IdGenerator`):**
+- `generateTimeBasedUUID()` — time-based UUIDv7-style UUID via `java-uuid-generator`, used for entity IDs
+- `gererateTSID()` — TSID via `hypersistence-tsid`; node/count configured through `TSID_NODE` / `TSID_NODE_COUNT` env vars for distributed generation
+
+**Order lifecycle (`OrderStatus`):** `DRAFT -> PLACED -> PAID -> READY`, with `CANCELED` as a terminal state from any point (enum only today — transition rules not yet enforced in `Order`).
 
 **Customer Entity Business Rules:**
 - Archived customers cannot be modified (throws `CustomerArchivedException`)
